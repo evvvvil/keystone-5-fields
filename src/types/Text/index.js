@@ -1,4 +1,4 @@
-import { Text, MongoTextInterface, KnexTextInterface, PrismaTextInterface } from './Implementation';
+import { Text, MongoTextInterface, KnexTextInterface } from './Implementation';
 import { resolveView } from '../../resolve-view';
 
 export default {
@@ -12,6 +12,5 @@ export default {
   adapters: {
     mongoose: MongoTextInterface,
     knex: KnexTextInterface,
-    prisma: PrismaTextInterface,
   },
 };

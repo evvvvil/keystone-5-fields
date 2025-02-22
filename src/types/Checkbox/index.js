@@ -2,8 +2,7 @@ import { resolveView } from '../../resolve-view';
 import {
   Checkbox,
   MongoCheckboxInterface,
-  KnexCheckboxInterface,
-  PrismaCheckboxInterface,
+  KnexCheckboxInterface
 } from './Implementation';
 
 export default {
@@ -17,7 +16,6 @@ export default {
   },
   adapters: {
     mongoose: MongoCheckboxInterface,
-    knex: KnexCheckboxInterface,
-    prisma: PrismaCheckboxInterface,
-  },
+    knex: KnexCheckboxInterface
+  }
 };

@@ -2,7 +2,6 @@ import {
   Decimal,
   MongoDecimalInterface,
   KnexDecimalInterface,
-  PrismaDecimalInterface,
 } from './Implementation';
 import { resolveView } from '../../resolve-view';
 
@@ -17,6 +16,5 @@ export default {
   adapters: {
     mongoose: MongoDecimalInterface,
     knex: KnexDecimalInterface,
-    prisma: PrismaDecimalInterface,
   },
 };

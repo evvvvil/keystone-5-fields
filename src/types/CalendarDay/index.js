@@ -2,8 +2,7 @@ import { resolveView } from '../../resolve-view';
 import {
   CalendarDay,
   MongoCalendarDayInterface,
-  KnexCalendarDayInterface,
-  PrismaCalendarDayInterface,
+  KnexCalendarDayInterface
 } from './Implementation';
 
 export default {
@@ -17,7 +16,6 @@ export default {
   },
   adapters: {
     mongoose: MongoCalendarDayInterface,
-    knex: KnexCalendarDayInterface,
-    prisma: PrismaCalendarDayInterface,
-  },
+    knex: KnexCalendarDayInterface
+  }
 };

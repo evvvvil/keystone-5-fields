@@ -2,7 +2,6 @@ import {
   Virtual,
   MongoVirtualInterface,
   KnexVirtualInterface,
-  PrismaVirtualInterface,
 } from './Implementation';
 import { resolveView } from '../../resolve-view';
 
@@ -18,6 +17,5 @@ export default {
   adapters: {
     mongoose: MongoVirtualInterface,
     knex: KnexVirtualInterface,
-    prisma: PrismaVirtualInterface,
   },
 };

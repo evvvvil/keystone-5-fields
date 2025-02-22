@@ -2,7 +2,6 @@ import {
   SlugImplementation,
   MongoSlugInterface,
   KnexSlugInterface,
-  PrismaSlugInterface,
 } from './Implementation';
 import { resolveView } from '../../resolve-view';
 
@@ -17,7 +16,6 @@ const Slug = {
   adapters: {
     knex: KnexSlugInterface,
     mongoose: MongoSlugInterface,
-    prisma: PrismaSlugInterface,
   },
 };
 

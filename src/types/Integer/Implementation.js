@@ -1,7 +1,6 @@
 import { Implementation } from '../../Implementation';
 import { MongooseFieldAdapter } from '@keystonejs/adapter-mongoose';
 import { KnexFieldAdapter } from '@keystonejs/adapter-knex';
-import { PrismaFieldAdapter } from '@keystonejs/adapter-prisma';
 
 export class Integer extends Implementation {
   constructor() {
@@ -75,15 +74,5 @@ export class KnexIntegerInterface extends CommonIntegerInterface(KnexFieldAdapte
     else if (this.isIndexed) column.index();
     if (this.isNotNullable) column.notNullable();
     if (typeof this.defaultTo !== 'undefined') column.defaultTo(this.defaultTo);
-  }
-}
-
-export class PrismaIntegerInterface extends CommonIntegerInterface(PrismaFieldAdapter) {
-  constructor() {
-    super(...arguments);
-  }
-
-  getPrismaSchema() {
-    return this._schemaField({ type: 'Int' });
   }
 }

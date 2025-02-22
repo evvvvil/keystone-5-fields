@@ -1,7 +1,6 @@
 import { Implementation } from '../../Implementation';
 import { MongooseFieldAdapter } from '@keystonejs/adapter-mongoose';
 import { KnexFieldAdapter } from '@keystonejs/adapter-knex';
-import { PrismaFieldAdapter } from '@keystonejs/adapter-prisma';
 
 export class Text extends Implementation {
   constructor(path, { isMultiline }) {
@@ -80,14 +79,3 @@ export class KnexTextInterface extends CommonTextInterface(KnexFieldAdapter) {
   }
 }
 
-export class PrismaTextInterface extends CommonTextInterface(PrismaFieldAdapter) {
-  constructor() {
-    super(...arguments);
-    this.isUnique = !!this.config.isUnique;
-    this.isIndexed = !!this.config.isIndexed && !this.config.isUnique;
-  }
-
-  getPrismaSchema() {
-    return [this._schemaField({ type: 'String' })];
-  }
-}

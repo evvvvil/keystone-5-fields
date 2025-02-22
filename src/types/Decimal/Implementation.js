@@ -3,7 +3,6 @@ import { Decimal as _Decimal } from 'decimal.js';
 import { Implementation } from '../../Implementation';
 import { MongooseFieldAdapter } from '@keystonejs/adapter-mongoose';
 import { KnexFieldAdapter } from '@keystonejs/adapter-knex';
-import { PrismaFieldAdapter } from '@keystonejs/adapter-prisma';
 
 export class Decimal extends Implementation {
   constructor(path, { symbol }) {
@@ -138,66 +137,3 @@ export class KnexDecimalInterface extends KnexFieldAdapter {
   }
 }
 
-export class PrismaDecimalInterface extends PrismaFieldAdapter {
-  constructor() {
-    super(...arguments);
-    const { precision, scale } = this.config;
-    this.isUnique = !!this.config.isUnique;
-    this.isIndexed = !!this.config.isIndexed && !this.config.isUnique;
-
-    // In addition to the standard knexOptions this type supports precision and scale
-    // const { precision, scale } = this.knexOptions;
-    this.precision = precision === null ? null : parseInt(precision) || 18;
-    this.scale = scale === null ? null : (this.precision, parseInt(scale) || 4);
-    if (this.scale !== null && this.precision !== null && this.scale > this.precision) {
-      throw (
-        `The scale configured for Decimal field '${this.path}' (${this.scale}) ` +
-        `must not be larger than the field's precision (${this.precision})`
-      );
-    }
-  }
-
-  getPrismaSchema() {
-    return this._schemaField({
-      type: 'Decimal',
-      extra: `@postgresql.Decimal(${this.precision}, ${this.scale})`,
-    });
-  }
-
-  setupHooks({ addPreSaveHook, addPostReadHook }) {
-    // Updates the relevant value in the item provided (by reference)
-    addPreSaveHook(item => {
-      // Only run the hook if the item actually contains the field
-      if (!(this.path in item)) {
-        return item;
-      }
-
-      if (item[this.path]) {
-        if (typeof item[this.path] === 'string') {
-          item[this.path] = new _Decimal(item[this.path]);
-        } else {
-          // Should have been caught by the validator??
-          throw `Invalid Decimal value given for '${this.path}'`;
-        }
-      } else {
-        item[this.path] = null;
-      }
-
-      return item;
-    });
-
-    addPostReadHook(item => {
-      if (item[this.path]) {
-        item[this.path] = item[this.path].toFixed(this.scale);
-      }
-      return item;
-    });
-  }
-
-  getQueryConditions(dbPath) {
-    return {
-      ...this.equalityConditions(dbPath),
-      ...this.orderingConditions(dbPath),
-    };
-  }
-}
