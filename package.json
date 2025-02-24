@@ -33,7 +33,7 @@
     "@babel/runtime": "^7.14.6",
     "@emotion/core": "^10.1.1",
     "@keystonejs/access-control": "^7.1.2",
-    "@keystonejs/adapter-knex": "^13.3.2",
+    "@keystonejs/adapter-knex": "https://github.com/evvvvil/keystone-5-adapter-knex/tarball/main",
     "@keystonejs/adapter-mongoose": "https://github.com/evvvvil/keystone-5-adapter-mongoose/tarball/main",
     "@keystonejs/app-admin-ui": "^7.5.2",
     "@keystonejs/server-side-graphql-client": "^2.1.2",
