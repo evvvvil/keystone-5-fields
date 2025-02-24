@@ -35,7 +35,7 @@
     "@keystonejs/access-control": "^7.1.2",
     "@keystonejs/adapter-knex": "https://github.com/evvvvil/keystone-5-adapter-knex/tarball/main",
     "@keystonejs/adapter-mongoose": "https://github.com/evvvvil/keystone-5-adapter-mongoose/tarball/main",
-    "@keystonejs/app-admin-ui": "^7.5.2",
+    "@keystonejs/app-admin-ui": "https://github.com/evvvvil/keystone-5-app-admin-ui/tarball/main",
     "@keystonejs/server-side-graphql-client": "^2.1.2",
     "@keystonejs/utils": "^6.1.2",
     "@primer/octicons-react": "^11.3.0",
