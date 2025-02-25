@@ -447,8 +447,7 @@ var index$c = {
   },
   adapters: {
     mongoose: MongoCalendarDayInterface,
-    knex: KnexCalendarDayInterface,
-    prisma: PrismaCalendarDayInterface
+    knex: KnexCalendarDayInterface
   }
 };
 
@@ -541,8 +540,7 @@ var index$b = {
   },
   adapters: {
     mongoose: MongoCheckboxInterface,
-    knex: KnexCheckboxInterface,
-    prisma: PrismaCheckboxInterface
+    knex: KnexCheckboxInterface
   }
 };
 
@@ -800,8 +798,7 @@ var DateTime = {
   },
   adapters: {
     mongoose: MongoDateTimeInterface,
-    knex: KnexDateTimeInterface,
-    prisma: PrismaDateTimeInterface
+    knex: KnexDateTimeInterface
   }
 };
 
@@ -923,8 +920,7 @@ var index$a = {
   },
   adapters: {
     mongoose: MongoDateTimeUtcInterface,
-    knex: KnexDateTimeUtcInterface,
-    prisma: PrismaDateTimeUtcInterface
+    knex: KnexDateTimeUtcInterface
   }
 };
 
@@ -1077,8 +1073,7 @@ var index$9 = {
   },
   adapters: {
     mongoose: MongoDecimalInterface,
-    knex: KnexDecimalInterface,
-    prisma: PrismaDecimalInterface
+    knex: KnexDecimalInterface
   }
 };
 
@@ -1285,8 +1280,7 @@ var index$8 = {
   },
   adapters: {
     mongoose: MongoFileInterface,
-    knex: KnexFileInterface,
-    prisma: PrismaFileInterface
+    knex: KnexFileInterface
   }
 };
 
@@ -1376,8 +1370,7 @@ var index$7 = {
   },
   adapters: {
     mongoose: MongoFloatInterface,
-    knex: KnexFloatInterface,
-    prisma: PrismaFloatInterface
+    knex: KnexFloatInterface
   }
 };
 
@@ -1472,8 +1465,7 @@ var index$6 = {
   },
   adapters: {
     mongoose: MongoIntegerInterface,
-    knex: KnexIntegerInterface,
-    prisma: PrismaIntegerInterface
+    knex: KnexIntegerInterface
   }
 };
 
@@ -1681,8 +1673,7 @@ var index$5 = {
   },
   adapters: {
     mongoose: MongoPasswordInterface,
-    knex: KnexPasswordInterface,
-    prisma: PrismaPasswordInterface
+    knex: KnexPasswordInterface
   }
 };
 
@@ -2470,8 +2461,7 @@ var index$4 = {
   },
   adapters: {
     mongoose: MongoRelationshipInterface,
-    knex: KnexRelationshipInterface,
-    prisma: PrismaRelationshipInterface
+    knex: KnexRelationshipInterface
   }
 };
 
@@ -2675,8 +2665,7 @@ var index$3 = {
   },
   adapters: {
     mongoose: MongoSelectInterface,
-    knex: KnexSelectInterface,
-    prisma: PrismaSelectInterface
+    knex: KnexSelectInterface
   }
 };
 
@@ -3037,8 +3026,7 @@ const Slug = {
   },
   adapters: {
     knex: KnexTextInterface,
-    mongoose: MongoTextInterface,
-    prisma: PrismaTextInterface
+    mongoose: MongoTextInterface
   }
 };
 
@@ -3052,8 +3040,7 @@ var index$2 = {
   },
   adapters: {
     mongoose: MongoTextInterface,
-    knex: KnexTextInterface,
-    prisma: PrismaTextInterface
+    knex: KnexTextInterface
   }
 };
 
@@ -3068,8 +3055,7 @@ var index$1 = {
   },
   adapters: {
     mongoose: MongoTextInterface,
-    knex: KnexTextInterface,
-    prisma: PrismaTextInterface
+    knex: KnexTextInterface
   }
 };
 
@@ -3238,8 +3224,7 @@ const Uuid = {
   },
   adapters: {
     knex: KnexUuidInterface,
-    mongoose: MongoUuidInterface,
-    prisma: PrismaUuidInterface
+    mongoose: MongoUuidInterface
   },
   primaryKeyDefaults: {
     knex: {
@@ -3255,12 +3240,7 @@ const Uuid = {
 
         throw `The Uuid field type doesn't provide a default primary key field configuration for the ` + `'${client}' knex client. You'll need to supply your own 'id' field for each list or use a ` + `different field type for your ids (eg '@keystonejs/fields-auto-increment').`;
       }
-    },
-    prisma: {
-      getConfig: client => {
-        throw `The Uuid field type doesn't provide a default primary key field configuration for the ` + `'${client}' prisma client. You'll need to supply your own 'id' field for each list or use a ` + `different field type for your ids (eg '@keystonejs/fields-auto-increment').`;
-      }
-    },
+    },    
     mongoose: {
       getConfig: () => {
         throw `The Uuid field type doesn't provide a default primary key field configuration for mongoose. ` + `You'll need to supply your own 'id' field for each list or use a different field type for your ` + `ids (eg '@keystonejs/fields-mongoid').`;
@@ -3376,8 +3356,7 @@ var index = {
   },
   adapters: {
     mongoose: MongoVirtualInterface,
-    knex: KnexVirtualInterface,
-    prisma: PrismaVirtualInterface
+    knex: KnexVirtualInterface
   }
 };
 
