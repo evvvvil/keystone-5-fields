@@ -6,7 +6,6 @@ import path from 'path';
 import { isValid, parseISO, compareAsc, compareDesc, formatISO } from 'date-fns';
 import { MongooseFieldAdapter } from '@keystonejs/adapter-mongoose';
 import { KnexFieldAdapter } from '@keystonejs/adapter-knex';
-import { PrismaFieldAdapter } from '@keystonejs/adapter-prisma';
 import { GraphQLScalarType } from 'graphql';
 import { Kind } from 'graphql/language';
 import { DateTime as DateTime$1, FixedOffsetZone } from 'luxon';
@@ -420,48 +419,6 @@ class KnexCalendarDayInterface extends CommonCalendarInterface(KnexFieldAdapter)
   }
 
 }
-class PrismaCalendarDayInterface extends CommonCalendarInterface(PrismaFieldAdapter) {
-  constructor() {
-    super(...arguments);
-  }
-
-  getPrismaSchema() {
-    return [this._schemaField({
-      type: 'DateTime'
-    })];
-  }
-
-  _stringToDate(s) {
-    return s && new Date(s + 'T00:00:00+0000');
-  }
-
-  getQueryConditions(dbPath) {
-    return _objectSpread(_objectSpread(_objectSpread({}, this.equalityConditions(dbPath, this._stringToDate)), this.orderingConditions(dbPath, this._stringToDate)), this.inConditions(dbPath, this._stringToDate));
-  }
-
-  setupHooks({
-    addPreSaveHook,
-    addPostReadHook
-  }) {
-    addPreSaveHook(item => {
-      if (item[this.path]) {
-        item[this.path] = this._stringToDate(item[this.path]);
-      }
-
-      return item;
-    });
-    addPostReadHook(item => {
-      if (item[this.path]) {
-        item[this.path] = formatISO(item[this.path], {
-          representation: 'date'
-        });
-      }
-
-      return item;
-    });
-  }
-
-}
 
 var index$c = {
   type: 'CalendarDay',
@@ -553,27 +510,6 @@ class KnexCheckboxInterface extends KnexFieldAdapter {
   getQueryConditions(dbPath) {
     return this.equalityConditions(dbPath);
   }
-
-}
-class PrismaCheckboxInterface extends PrismaFieldAdapter {
-  constructor() {
-    super(...arguments); // Error rather than ignoring invalid config
-
-    if (this.config.isIndexed) {
-      throw `The Checkbox field type doesn't support indexes on Prisma. ` + `Check the config for ${this.path} on the ${this.field.listKey} list`;
-    }
-  }
-
-  getPrismaSchema() {
-    return [this._schemaField({
-      type: 'Boolean'
-    })];
-  }
-
-  getQueryConditions(dbPath) {
-    return this.equalityConditions(dbPath);
-  }
-
 }
 
 var index$b = {
@@ -833,23 +769,6 @@ class KnexDateTimeInterface extends CommonDateTimeInterface(KnexFieldAdapter) {
   }
 
 }
-class PrismaDateTimeInterface extends CommonDateTimeInterface(PrismaFieldAdapter) {
-  constructor() {
-    super(...arguments);
-    this.utcPath = `${this.path}_utc`;
-    this.offsetPath = `${this.path}_offset`;
-    this.realKeys = [this.utcPath, this.offsetPath];
-    this.sortKey = this.utcPath;
-    this.dbPath = this.utcPath;
-    this.isUnique = !!this.config.isUnique;
-    this.isIndexed = !!this.config.isIndexed && !this.config.isUnique;
-  }
-
-  getPrismaSchema() {
-    return [`${this.path}_utc    DateTime? ${this.config.isUnique ? '@unique' : ''}`, `${this.path}_offset String?`];
-  }
-
-}
 
 var DateTime = {
   type: 'DateTime',
@@ -970,40 +889,6 @@ class KnexDateTimeUtcInterface extends KnexFieldAdapter {
 
   getQueryConditions(dbPath) {
     return _objectSpread(_objectSpread(_objectSpread({}, this.equalityConditions(dbPath, toDate)), this.orderingConditions(dbPath, toDate)), this.inConditions(dbPath, toDate));
-  }
-
-}
-class PrismaDateTimeUtcInterface extends PrismaFieldAdapter {
-  constructor() {
-    super(...arguments);
-    this.isUnique = !!this.config.isUnique;
-    this.isIndexed = !!this.config.isIndexed && !this.config.isUnique;
-  }
-
-  getPrismaSchema() {
-    return [this._schemaField({
-      type: 'DateTime'
-    })];
-  }
-
-  _stringToDate(s) {
-    return s && new Date(s);
-  }
-
-  getQueryConditions(dbPath) {
-    return _objectSpread(_objectSpread(_objectSpread({}, this.equalityConditions(dbPath, this._stringToDate)), this.orderingConditions(dbPath, this._stringToDate)), this.inConditions(dbPath, this._stringToDate));
-  }
-
-  setupHooks({
-    addPreSaveHook
-  }) {
-    addPreSaveHook(item => {
-      if (item[this.path]) {
-        item[this.path] = this._stringToDate(item[this.path]);
-      }
-
-      return item;
-    });
   }
 
 }
@@ -1159,70 +1044,6 @@ class KnexDecimalInterface extends KnexFieldAdapter {
 
   getQueryConditions(dbPath) {
     return _objectSpread(_objectSpread(_objectSpread({}, this.equalityConditions(dbPath)), this.orderingConditions(dbPath)), this.inConditions(dbPath));
-  }
-
-}
-class PrismaDecimalInterface extends PrismaFieldAdapter {
-  constructor() {
-    super(...arguments);
-    const {
-      precision,
-      scale
-    } = this.config;
-    this.isUnique = !!this.config.isUnique;
-    this.isIndexed = !!this.config.isIndexed && !this.config.isUnique; // In addition to the standard knexOptions this type supports precision and scale
-    // const { precision, scale } = this.knexOptions;
-
-    this.precision = precision === null ? null : parseInt(precision) || 18;
-    this.scale = scale === null ? null : (this.precision, parseInt(scale) || 4);
-
-    if (this.scale !== null && this.precision !== null && this.scale > this.precision) {
-      throw `The scale configured for Decimal field '${this.path}' (${this.scale}) ` + `must not be larger than the field's precision (${this.precision})`;
-    }
-  }
-
-  getPrismaSchema() {
-    return this._schemaField({
-      type: 'Decimal',
-      extra: `@postgresql.Decimal(${this.precision}, ${this.scale})`
-    });
-  }
-
-  setupHooks({
-    addPreSaveHook,
-    addPostReadHook
-  }) {
-    // Updates the relevant value in the item provided (by reference)
-    addPreSaveHook(item => {
-      // Only run the hook if the item actually contains the field
-      if (!(this.path in item)) {
-        return item;
-      }
-
-      if (item[this.path]) {
-        if (typeof item[this.path] === 'string') {
-          item[this.path] = new Decimal$1(item[this.path]);
-        } else {
-          // Should have been caught by the validator??
-          throw `Invalid Decimal value given for '${this.path}'`;
-        }
-      } else {
-        item[this.path] = null;
-      }
-
-      return item;
-    });
-    addPostReadHook(item => {
-      if (item[this.path]) {
-        item[this.path] = item[this.path].toFixed(this.scale);
-      }
-
-      return item;
-    });
-  }
-
-  getQueryConditions(dbPath) {
-    return _objectSpread(_objectSpread({}, this.equalityConditions(dbPath)), this.orderingConditions(dbPath));
   }
 
 }
@@ -1434,23 +1255,6 @@ class KnexFileInterface extends CommonFileInterface(KnexFieldAdapter) {
   }
 
 }
-class PrismaFileInterface extends CommonFileInterface(PrismaFieldAdapter) {
-  constructor() {
-    super(...arguments); // Error rather than ignoring invalid config
-    // We totally can index these values, it's just not trivial. See issue #1297
-
-    if (this.config.isIndexed) {
-      throw `The File field type doesn't support indexes on Prisma. ` + `Check the config for ${this.path} on the ${this.field.listKey} list`;
-    }
-  }
-
-  getPrismaSchema() {
-    return [this._schemaField({
-      type: 'Json'
-    })];
-  }
-
-}
 
 var index$8 = {
   type: 'File',
@@ -1539,18 +1343,6 @@ class KnexFloatInterface extends CommonFloatInterface(KnexFieldAdapter) {
     if (this.isUnique) column.unique();else if (this.isIndexed) column.index();
     if (this.isNotNullable) column.notNullable();
     if (typeof this.defaultTo !== 'undefined') column.defaultTo(this.defaultTo);
-  }
-
-}
-class PrismaFloatInterface extends CommonFloatInterface(PrismaFieldAdapter) {
-  constructor() {
-    super(...arguments);
-  }
-
-  getPrismaSchema() {
-    return this._schemaField({
-      type: 'Float'
-    });
   }
 
 }
@@ -1647,18 +1439,6 @@ class KnexIntegerInterface extends CommonIntegerInterface(KnexFieldAdapter) {
     if (this.isUnique) column.unique();else if (this.isIndexed) column.index();
     if (this.isNotNullable) column.notNullable();
     if (typeof this.defaultTo !== 'undefined') column.defaultTo(this.defaultTo);
-  }
-
-}
-class PrismaIntegerInterface extends CommonIntegerInterface(PrismaFieldAdapter) {
-  constructor() {
-    super(...arguments);
-  }
-
-  getPrismaSchema() {
-    return this._schemaField({
-      type: 'Int'
-    });
   }
 
 }
@@ -1866,39 +1646,6 @@ class KnexPasswordInterface extends CommonPasswordInterface(KnexFieldAdapter) {
     // could be used to extract information about the hash.. :/
     return {
       [`${this.path}_is_set`]: value => b => value ? b.where(dbPath, '~', bcryptHashRegex.source) : b.where(dbPath, '!~', bcryptHashRegex.source).orWhereNull(dbPath)
-    };
-  }
-
-}
-class PrismaPasswordInterface extends CommonPasswordInterface(PrismaFieldAdapter) {
-  constructor() {
-    super(...arguments); // Error rather than ignoring invalid config
-
-    if (this.config.isUnique || this.config.isIndexed) {
-      throw `The Password field type doesn't support indexes on Prisma. ` + `Check the config for ${this.path} on the ${this.field.listKey} list`;
-    }
-  }
-
-  getPrismaSchema() {
-    return [this._schemaField({
-      type: 'String'
-    })];
-  }
-
-  getQueryConditions(dbPath) {
-    // JM: I wonder if performing a regex match here leaks any timing info that
-    // could be used to extract information about the hash.. :/
-    return {
-      // FIXME: Prisma needs to support regex matching...
-      [`${this.path}_is_set`]: value => value ? {
-        NOT: {
-          [dbPath]: null
-        }
-      } : {
-        [dbPath]: null
-      } // ? b.where(dbPath, '~', bcryptHashRegex.source)
-      // : b.where(dbPath, '!~', bcryptHashRegex.source).orWhereNull(dbPath),
-
     };
   }
 
@@ -2690,34 +2437,6 @@ class KnexRelationshipInterface extends KnexFieldAdapter {
   }
 
 }
-class PrismaRelationshipInterface extends PrismaFieldAdapter {
-  constructor() {
-    super(...arguments);
-    this.idPath = `${this.dbPath}Id`;
-    this.isRelationship = true; // Default isIndexed to true if it's not explicitly provided
-    // Mutually exclusive with isUnique
-
-    this.isUnique = typeof this.config.isUnique === 'undefined' ? false : !!this.config.isUnique;
-    this.isIndexed = typeof this.config.isIndexed === 'undefined' ? !this.config.isUnique : !!this.config.isIndexed; // JM: It bugs me this is duplicated in the implementation but initialisation order makes it hard to avoid
-
-    const [refListKey, refFieldPath] = this.config.ref.split('.');
-    this.refListKey = refListKey;
-    this.refFieldPath = refFieldPath;
-  }
-
-  getQueryConditions(dbPath) {
-    return {
-      [`${this.path}_is_null`]: value => value ? {
-        [dbPath]: null
-      } : {
-        NOT: {
-          [dbPath]: null
-        }
-      }
-    };
-  }
-
-}
 
 var index$4 = {
   type: 'Relationship',
@@ -2925,29 +2644,6 @@ class KnexSelectInterface extends CommonSelectInterface(KnexFieldAdapter) {
   }
 
 }
-class PrismaSelectInterface extends CommonSelectInterface(PrismaFieldAdapter) {
-  constructor() {
-    super(...arguments);
-    this.isUnique = !!this.config.isUnique;
-    this.isIndexed = !!this.config.isIndexed && !this.config.isUnique;
-    this._prismaType = this.config.dataType === 'enum' ? `${this.field.listKey}${inflection.classify(this.path)}Enum` : this.config.dataType === 'integer' ? 'Int' : 'String';
-  }
-
-  getPrismaEnums() {
-    if (!['Int', 'String'].includes(this._prismaType)) {
-      return [`enum ${this._prismaType} {
-          ${this.field.options.map(i => i.value).join('\n')}
-        }`];
-    } else return [];
-  }
-
-  getPrismaSchema() {
-    return [this._schemaField({
-      type: this._prismaType
-    })];
-  }
-
-}
 
 var index$3 = {
   type: 'Select',
@@ -3049,20 +2745,6 @@ class KnexTextInterface extends CommonTextInterface$1(KnexFieldAdapter) {
     if (this.isUnique) column.unique();else if (this.isIndexed) column.index();
     if (this.isNotNullable) column.notNullable();
     if (typeof this.defaultTo !== 'undefined') column.defaultTo(this.defaultTo);
-  }
-
-}
-class PrismaTextInterface extends CommonTextInterface$1(PrismaFieldAdapter) {
-  constructor() {
-    super(...arguments);
-    this.isUnique = !!this.config.isUnique;
-    this.isIndexed = !!this.config.isIndexed && !this.config.isUnique;
-  }
-
-  getPrismaSchema() {
-    return [this._schemaField({
-      type: 'String'
-    })];
   }
 
 }
@@ -3526,27 +3208,6 @@ class KnexUuidInterface extends KnexFieldAdapter {
   }
 
 }
-class PrismaUuidInterface extends PrismaFieldAdapter {
-  constructor() {
-    super(...arguments); // TODO: Warning on invalid config for primary keys?
-
-    if (!this.field.isPrimaryKey) {
-      this.isUnique = !!this.config.isUnique;
-      this.isIndexed = !!this.config.isIndexed && !this.config.isUnique;
-    }
-  }
-
-  getPrismaSchema() {
-    return [this._schemaField({
-      type: 'String'
-    })];
-  }
-
-  getQueryConditions(dbPath) {
-    return _objectSpread(_objectSpread({}, this.equalityConditions(dbPath, this.field.normaliseValue)), this.inConditions(dbPath, this.field.normaliseValue));
-  }
-
-}
 
 const Uuid = {
   type: 'Uuid',
@@ -3682,17 +3343,6 @@ class KnexVirtualInterface extends CommonTextInterface(KnexFieldAdapter) {
   }
 
   addToTableSchema() {}
-
-}
-class PrismaVirtualInterface extends CommonTextInterface(PrismaFieldAdapter) {
-  constructor() {
-    super(...arguments);
-    this.realKeys = [];
-  }
-
-  getPrismaSchema() {
-    return [];
-  }
 
 }
 
